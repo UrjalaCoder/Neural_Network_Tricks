@@ -3,6 +3,9 @@ Tricking my MNIST neural network using an adversarial approach.
 
 ## Goal
 Create images that the network cannot recognize using a gradient descent algorithm.
+Images look like a number but the network cannot correctly classify them.
+
+I can maybe use these generated images to train the network to be even better.
 
 ### Example output figure
 ![alt text](https://github.com/UrjalaCoder/Neural_Network_Tricks/blob/master/Figure_1.png "Figure")
