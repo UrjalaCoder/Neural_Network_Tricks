@@ -4,8 +4,7 @@ from mnist import MNIST
 from data_helper import *
 from matplotlib import pyplot as plt
 
-# def generate_goal_image():
-#
+
 
 # Prepares the training data
 def prepare_training_data(mndata):
@@ -39,8 +38,9 @@ def main():
     mndata = MNIST("./data")
     training_set = prepare_training_data(mndata)
 
-    x_goal, goal = training_set[0]
+    x_goal, goal = training_set[1]
 
+    # Just some false goal.
     false_goal = np.array([[1, 0, 0, 0, 0, 0, 0, 0, 0, 0]]).reshape((10, 1))
 
     data_goal = x_goal.reshape((28, 28))
@@ -60,7 +60,7 @@ def main():
     # input_g = net.input_gradient(test_x, test_y)
     # print(input_g)
     eta = 1.7
-    lam = 0.01
+    lam = 0.03
     for i in range(step_size):
         d = net.input_gradient(x, false_goal)
         d_vector = np.array(d).reshape((28*28, 1))
