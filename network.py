@@ -32,12 +32,48 @@ class Network:
     def sigmoid_prime(self, z):
         return (self.sigmoid(z) * (1 - self.sigmoid(z)))
 
+    # This function assumes that len(self.sizes) == 3
     def input_gradient_helper(self, G):
         input_gradient = []
+        G.reverse()
+        for out_n in range(self.sizes[-1]):
+            for_one_output = []
+            for in_n in range(self.sizes[0]):
+                # Main calculation:
+                g = 0
+                for k in range(self.sizes[1]):
+                    g = g + G[1][out_n][k] * G[0][k][in_n]
 
-        for out_n in range(len(self.sizes[-1])):
-            
+                for_one_output.append(g)
+            input_gradient.append(for_one_output)
 
+        return input_gradient[0]
+
+    def input_gradient(self, x, y):
+        activations, zs = self.feed_forward(x)
+
+        partial_derivative_inputs = [np.zeros(self.sizes[i]) for i in range(len(self.sizes))]
+        # Calculate the partial derivative wrt the inputs.
+        gradients = []
+        for l in range(len(zs) - 1, -1, -1):
+            layer_gradients = []
+            for i in range(len(zs[l])):
+                z = zs[l][i]
+                weight = self.weights[l]
+                activation_prime = self.sigmoid_prime(z)
+                gradient = np.zeros(self.sizes[l])
+
+                # Wrt each input neuron
+                for n in range(self.sizes[l]):
+                    gradient[n] = activation_prime * self.weights[l][i][n]
+
+                layer_gradients.append(gradient)
+            gradients.append(layer_gradients)
+
+        # gradients[l][i][n] is the partial derivative of the activation of a^l_i wrt a^(l-1)_n
+        input_gradient = self.input_gradient_helper(gradients)
+
+        return input_gradient
 
     # 'x' refers to the input of the training sample.
     # 'y' refers to the correct output of the sample.
@@ -50,37 +86,6 @@ class Network:
         deltas = [np.zeros((i, 1)) for i in self.sizes]
         partial_derivative_bias = [np.zeros(self.biases[i].shape) for i in range(len(self.biases))]
         partial_derivative_weights = [np.zeros(self.weights[i].shape) for i in range(len(self.weights))]
-
-        partial_derivative_inputs = [np.zeros(self.sizes[i]) for i in range(len(self.sizes))]
-
-        print(self.weights)
-
-        # Calculate the partial derivative wrt the inputs.
-        print(partial_derivative_inputs)
-        gradients = []
-        print("zs:")
-        for l in range(len(zs) - 1, -1, -1):
-            layer_gradients = []
-            print("Layer: {}".format(l))
-            for i in range(len(zs[l])):
-                z = zs[l][i]
-                weight = self.weights[l]
-                activation_prime = self.sigmoid_prime(z)
-                gradient = np.zeros(self.sizes[l])
-                # print(gradient)
-
-                # Wrt each input neuron
-                for n in range(self.sizes[l]):
-                    gradient[n] = activation_prime * self.weights[l][i][n]
-
-                layer_gradients.append(gradient)
-            gradients.append(layer_gradients)
-
-        # gradients[l][i][n] is the partial derivative of the activation of a^l_i wrt a^(l-1)_n
-        print(gradients)
-
-        input_gradient = self.input_gradient_helper(gradients)
-
 
         # Final layer error -->
         deltas[-1] = self.cost_prime(activations[-1], y) * self.sigmoid_prime(zs[-1])
